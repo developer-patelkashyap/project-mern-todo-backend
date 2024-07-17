@@ -1,6 +1,7 @@
+// core dependencies
 const mongoose = require("mongoose");
 
-const User = new mongoose.Schema({
+const TodoSchema = new mongoose.Schema({
   user: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "User",
