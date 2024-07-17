@@ -1,18 +1,12 @@
+// core dependencies
 require("dotenv").config;
-
-const { MongoClient, ServerApiVersion } = require("mongodb");
-
-const client = new MongoClient(process.env.MONGO_URI, {
-  serverApi: ServerApiVersion.v1,
-});
+const mongoose = require("mongoose");
 
 const connectDB = async () => {
-  try {
-    await client.connect();
-    console.log("MongoDB Cloud Connected");
-  } catch (error) {
-    console.error(error.message);
-  }
+  await mongoose
+    .connect(process.env.MONGO_URI)
+    .then(() => console.log("MongoDB connected..."))
+    .catch((err) => console.error("MongoDB connection error:", err));
 };
 
 module.exports = connectDB;
