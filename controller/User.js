@@ -9,6 +9,9 @@ const secretKey = process.env.SECRET_KEY;
 // model
 const User = require("../models/User");
 
+// dto
+const ResponseDTO = require("../dto/Response");
+
 exports.register = async (req, res) => {
   const { userName, firstName, lastName, email, password } = req.body;
 
@@ -16,7 +19,8 @@ exports.register = async (req, res) => {
     let user = await User.findOne({ userName });
 
     if (user) {
-      return res.status(400).json({ msg: "User already exists" });
+      let ResDTO = new ResponseDTO(409, "User already exists!", null);
+      return res.json(ResDTO);
     }
 
     user = new User({
@@ -30,7 +34,9 @@ exports.register = async (req, res) => {
     user.password = await bcrypt.hash(password, salt);
 
     await user.save();
-    res.status(201).json({ msg: "User registered successfully" });
+
+    let ResDTO = new ResponseDTO(201, "User registered successfully!", null);
+    res.json(ResDTO);
   } catch (err) {
     console.error(err);
     res.status(500).send("Server error");
@@ -43,7 +49,8 @@ exports.login = async (req, res) => {
     const user = await User.findOne({ userName });
 
     if (!user) {
-      res.send("User Not Found!");
+      let ResDTO = new ResponseDTO(401, "User Not Found!", null);
+      res.json(ResDTO);
       return;
     }
 
@@ -51,10 +58,14 @@ exports.login = async (req, res) => {
 
     if (passwordMatch) {
       const token = jwt.sign({ userName }, secretKey, { expiresIn: "1h" });
-      res.json({ token });
-      // res.header("Authorization", token);
+      let ResDTO = new ResponseDTO(200, "Login Success", {
+        userId: user._id,
+        token,
+      });
+      res.json(ResDTO);
     } else {
-      res.send("Password Does not Match!");
+      let ResDTO = new ResponseDTO(401, "Password Does not Match!", null);
+      res.json(ResDTO);
     }
   } catch (error) {
     res.send(error);
